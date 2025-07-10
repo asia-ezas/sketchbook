@@ -1,0 +1,78 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+#toolbar {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap; /* 要素が増えるので折り返しを許可 */
+    gap: 10px;
+    align-items: center;
+}
+
+#drawingCanvas {
+    border: 2px solid #ccc;
+    background-color: #fff;
+    cursor: crosshair;
+}
+
+/* カラーパレットのスタイル */
+.color-palette {
+    display: flex;
+    gap: 5px;
+    border: 1px solid #eee;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.color-box {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: transform 0.1s ease-in-out;
+}
+
+.color-box:hover {
+    transform: scale(1.1);
+}
+
+.color-box.active {
+    border: 2px solid royalblue; /* 選択中の色を強調 */
+    transform: scale(1.1);
+}
+
+/* 各色ボックスの背景色を設定 */
+.color-palette div[data-color="#000000"] { background-color: #000000; }
+.color-palette div[data-color="#FF0000"] { background-color: #FF0000; }
+.color-palette div[data-color="#0000FF"] { background-color: #0000FF; }
+.color-palette div[data-color="#008000"] { background-color: #008000; }
+.color-palette div[data-color="#FFFF00"] { background-color: #FFFF00; }
+.color-palette div[data-color="#800080"] { background-color: #800080; }
+.color-palette div[data-color="#FFA500"] { background-color: #FFA500; }
+.color-palette div[data-color="#A52A2A"] { background-color: #A52A2A; }
+
+button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
