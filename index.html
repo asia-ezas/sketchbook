@@ -20,9 +20,24 @@
         </div>
         <input type="color" id="colorPicker" value="#000000">
 
-        <input type="range" id="lineWidth" min="1" max="10" value="2">
-        <button id="pencilTool">鉛筆</button>
-        <button id="eraserTool">消しゴム</button>
+        <div class="tool-group">
+            <button id="pencilTool" class="active-tool">鉛筆</button>
+            <label for="pencilLineWidth">太さ:</label>
+            <input type="range" id="pencilLineWidth" min="1" max="50" value="2">
+            <label for="brushType">種類:</label>
+            <select id="brushType">
+                <option value="round">丸型</option>
+                <option value="butt">四角型</option>
+                <option value="square">尖った型</option>
+            </select>
+        </div>
+
+        <div class="tool-group">
+            <button id="eraserTool">消しゴム</button>
+            <label for="eraserLineWidth">太さ:</label>
+            <input type="range" id="eraserLineWidth" min="1" max="50" value="10">
+        </div>
+
         <button id="undoBtn">元に戻す</button>
         <button id="redoBtn">やり直し</button>
         <button id="clearCanvas">クリア</button>
