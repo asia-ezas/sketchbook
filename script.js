@@ -2,14 +2,16 @@ const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 const colorPicker = document.getElementById('colorPicker');
 const colorPalette = document.querySelector('.color-palette');
-const lineWidthSlider = document.getElementById('lineWidth');
+const pencilLineWidthSlider = document.getElementById('pencilLineWidth'); // 鉛筆用
+const eraserLineWidthSlider = document.getElementById('eraserLineWidth'); // 消しゴム用
+const brushTypeSelect = document.getElementById('brushType'); // ブラシ種類選択
 const pencilToolBtn = document.getElementById('pencilTool');
 const eraserToolBtn = document.getElementById('eraserTool');
 const undoBtn = document.getElementById('undoBtn');
 const redoBtn = document.getElementById('redoBtn');
 const clearCanvasBtn = document.getElementById('clearCanvas');
 const savePngImageBtn = document.getElementById('savePngImage');
-const savePdfImageBtn = document.getElementById('savePdfImage'); // PDF保存ボタン
+const savePdfImageBtn = document.getElementById('savePdfImage');
 
 // キャンバスのサイズ設定
 canvas.width = 800;
@@ -18,9 +20,8 @@ canvas.height = 600;
 let isDrawing = false;
 let currentTool = 'pencil'; // 'pencil' or 'eraser'
 let currentColor = '#000000'; // 現在選択されている色
-ctx.lineWidth = lineWidthSlider.value;
-ctx.lineCap = 'round'; // 線の端を丸くする
-ctx.lineJoin = 'round'; // 線の角を丸くする
+let currentLineWidth = pencilLineWidthSlider.value; // 現在の線の太さ
+let currentBrushType = brushTypeSelect.value; // 現在のブラシの種類
 
 // --- アンドゥ/リドゥ用の履歴管理 ---
 let history = []; // 描画履歴を保存する配列
@@ -28,6 +29,9 @@ let historyStep = -1; // 現在の履歴のステップ
 
 // 初期設定
 ctx.strokeStyle = currentColor;
+ctx.lineWidth = currentLineWidth;
+ctx.lineCap = currentBrushType;
+ctx.lineJoin = currentBrushType === 'butt' ? 'miter' : 'round'; // buttの場合はmiterが自然
 ctx.fillStyle = '#FFFFFF'; // キャンバス背景色
 ctx.fillRect(0, 0, canvas.width, canvas.height); // キャンバスを白で初期化
 saveState(); // 初期状態を履歴に保存
@@ -43,6 +47,10 @@ colorPicker.addEventListener('input', (e) => {
     ctx.strokeStyle = currentColor;
     // カラーパレットの選択状態を解除
     document.querySelectorAll('.color-box').forEach(box => box.classList.remove('active'));
+    // 鉛筆ツールが選択されている場合のみ色を適用
+    if (currentTool === 'pencil') {
+        ctx.strokeStyle = currentColor;
+    }
 });
 
 // カラーパレットのクリックイベント
@@ -50,26 +58,56 @@ colorPalette.addEventListener('click', (e) => {
     if (e.target.classList.contains('color-box')) {
         const selectedColor = e.target.dataset.color;
         currentColor = selectedColor;
-        ctx.strokeStyle = currentColor;
         colorPicker.value = selectedColor; // カラーピッカーも同期
         // 選択された色に'active'クラスを追加し、他から削除
         document.querySelectorAll('.color-box').forEach(box => box.classList.remove('active'));
         e.target.classList.add('active');
+        // 鉛筆ツールが選択されている場合のみ色を適用
+        if (currentTool === 'pencil') {
+            ctx.strokeStyle = currentColor;
+        }
     }
 });
 
-lineWidthSlider.addEventListener('input', (e) => {
-    ctx.lineWidth = e.target.value;
+pencilLineWidthSlider.addEventListener('input', (e) => {
+    currentLineWidth = e.target.value;
+    if (currentTool === 'pencil') {
+        ctx.lineWidth = currentLineWidth;
+    }
 });
+
+eraserLineWidthSlider.addEventListener('input', (e) => {
+    currentLineWidth = e.target.value;
+    if (currentTool === 'eraser') {
+        ctx.lineWidth = currentLineWidth;
+    }
+});
+
+brushTypeSelect.addEventListener('change', (e) => {
+    currentBrushType = e.target.value;
+    if (currentTool === 'pencil') {
+        ctx.lineCap = currentBrushType;
+        ctx.lineJoin = currentBrushType === 'butt' ? 'miter' : 'round';
+    }
+});
+
 
 pencilToolBtn.addEventListener('click', () => {
     currentTool = 'pencil';
     ctx.strokeStyle = currentColor; // 鉛筆に戻る時に現在の色を適用
+    ctx.lineWidth = pencilLineWidthSlider.value;
+    ctx.lineCap = brushTypeSelect.value;
+    ctx.lineJoin = brushTypeSelect.value === 'butt' ? 'miter' : 'round';
+    updateActiveToolButton();
 });
 
 eraserToolBtn.addEventListener('click', () => {
     currentTool = 'eraser';
     ctx.strokeStyle = '#FFFFFF'; // 消しゴムは背景色と同じにする
+    ctx.lineWidth = eraserLineWidthSlider.value;
+    ctx.lineCap = 'round'; // 消しゴムは常に丸型が自然
+    ctx.lineJoin = 'round'; // 消しゴムは常に丸型が自然
+    updateActiveToolButton();
 });
 
 undoBtn.addEventListener('click', undo);
@@ -91,7 +129,22 @@ savePngImageBtn.addEventListener('click', () => {
     document.body.removeChild(a);
 });
 
-savePdfImageBtn.addEventListener('click', saveCanvasAsPdf); // PDF保存イベント
+savePdfImageBtn.addEventListener('click', saveCanvasAsPdf);
+
+// --- アクティブツールボタンの更新 ---
+function updateActiveToolButton() {
+    document.querySelectorAll('#toolbar button').forEach(button => {
+        button.classList.remove('active-tool');
+    });
+    if (currentTool === 'pencil') {
+        pencilToolBtn.classList.add('active-tool');
+    } else if (currentTool === 'eraser') {
+        eraserToolBtn.classList.add('active-tool');
+    }
+}
+
+// 初期のアクティブツールを設定
+updateActiveToolButton();
 
 // --- 描画関数 ---
 function startDrawing(e) {
