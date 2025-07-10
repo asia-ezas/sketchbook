@@ -76,3 +76,17 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+/* アクティブなツールボタンのスタイル */
+button.active-tool {
+    background-color: #28a745; /* 緑色など、目立つ色に */
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #eee;
+    padding: 5px;
+    border-radius: 5px;
+}
